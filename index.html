@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Drag and Drop Website code generator for begginers</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+
+    body {
+  font-family: Arial;
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+}
+
+#toolbox {
+  width: 150px;
+  border: 2px solid #ccc;
+  padding: 10px;
+}
+
+.tool {
+  margin: 10px 0;
+  padding: 10px;
+  background: #f0f0f0;
+  border: 1px solid #aaa;
+  cursor: grab;
+}
+
+#canvas {
+  flex-grow: 1;
+  min-height: 400px;
+  border: 2px dashed #aaa;
+  padding: 20px;
+  background: #fafafa;
+}
+
+
+
+    #components {
+      min-height: 200px;
+      border: 2px dashed #6c757d;
+      padding: 15px;
+      background-color: #f8f9fa;
+    }
+
+    .component {
+      padding: 6px 12px;
+      margin-bottom: 10px;
+      cursor: grab;
+      background-color: #ffffff;
+      border: 1px solid #ced4da;
+      border-radius: 5px;
+      user-select: none;
+      text-align: center;
+    }
+
+    .component:active {
+      cursor: grabbing;
+    }
+
+    pre {
+      background-color: #f1f3f5;
+      padding: 15px;
+      border-radius: 6px;
+      max-height: 300px;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+
+    .card-body {
+    max-height: 600px; /* or any height you want */
+    overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid py-4">
+    <h1 class="mb-4 text-center">🧩 Drag and Drop Website code generator for begginers</h1>
+
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            Components
+          </div>
+          <div class="card-body d-flex flex-column">
+              <div class="component" draggable="true" data-type="heading">Heading</div>
+              <div class="component" draggable="true" data-type="paragraph">Paragraph</div>
+              <div class="component" draggable="true" data-type="button">Button</div>
+              <div class="component" draggable="true" data-type="navbar">Navbar</div>
+              <div class="component" draggable="true" data-type="link">Link</div>
+              <div class="component" draggable="true" data-type="sidebar">Side Bar</div>
+              <div class="component" draggable="true" data-type="search-bar">Search Bar</div>
+              <div class="component" draggable="true" data-type="footer">Footer</div>
+              <div class="component" draggable="true" data-type="section">Section</div>
+              <div class="component" draggable="true" data-type="card">Card</div>
+              <div class="component" draggable="true" data-type="input">Input Field</div>
+              <div class="component" draggable="true" data-type="textarea">Textarea</div>
+              <div class="component" draggable="true" data-type="select">Select Dropdown</div>
+              <div class="component" draggable="true" data-type="checkbox">Checkbox</div>
+              <div class="component" draggable="true" data-type="radio">Radio Buttons</div>
+              <div class="component" draggable="true" data-type="accordion">Accordion</div>
+              <div class="component" draggable="true" data-type="tabs">Tabs</div>
+              <div class="component" draggable="true" data-type="progress">Progress Bar</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drop Area -->
+      <div class="col-md-9">
+        <div class="card mb-3">
+          <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Drop Area</h5>
+          <button id="clearBtn" class="btn btn-danger btn-sm">Clear All</button>
+          </div>
+
+          <div class="card-body" id="components" style="min-height: 200px;">
+            <p class="text-muted">Drop components here...</p>
+          </div>
+        </div>
+
+        <!-- Generated Code -->
+        <div class="card">
+          <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Generated Code</h5>
+            <button id="copyBtn" class="btn btn-sm btn-primary">Copy Code</button>
+         </div>
+
+          <div class="card-body">
+            <pre id="output">{{ generated_code }}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const components = document.querySelectorAll('.component');
+    const dropZone = document.getElementById('components');
+    const output = document.getElementById('output');
+
+    const componentTemplates = {
+  'heading': `<h1>This is heading</h1>`,
+  'paragraph': `<p>This is a paragraph.</p>`,
+  'button': `<button style="background:#07c;color:#fff;padding:5px 10px;border:none;border-radius:3px;">Button</button>`,
+  'navbar': `
+<nav style="background:#f8f9fa; border: 1px solid blue; padding: 10px 20px;">
+  <div style="max-width: 800px; margin: 0 auto; display: flex; gap: 20px; align-items: center;">
+    <a href="#" style="color: #000; text-decoration: none; font-weight: bold;">Home</a>
+    <a href="#" style="color: #000; text-decoration: none;">About</a>
+    <a href="#" style="color: #000; text-decoration: none;">Services</a>
+    <a href="#" style="color: #000; text-decoration: none;">Contact</a>
+  </div>
+</nav>`,
+  'search-bar': `
+<nav style="background:#eee; padding:8px;">
+  <div style="max-width:600px; margin:0 auto;">
+    <form role="search" style="display:flex; gap:8px;">
+      <input type="search" placeholder="Search" aria-label="Search" style="flex:1; padding:6px 8px; border:1px solid #ccc; border-radius:4px;">
+      <button type="submit" style="padding:6px 12px; border:none; background:#28a745; color:#fff; border-radius:4px; cursor:pointer;">Search</button>
+    </form>
+  </div>
+</nav>`,
+  'link': `<a href="#" style="color: blue; text-decoration: underline; cursor: pointer;">Click Here</a>`,
+  'sidebar': `
+<div style="width: 200px; border: 1px solid blue; padding: 10px;">
+  <h3 style="margin-bottom: 15px;">Menu</h3>
+  <a href="#" style="display: block; padding: 8px; text-decoration: none; color: black; border-bottom: 1px solid #ddd;" onmouseover="this.style.backgroundColor='lightblue'" onmouseout="this.style.backgroundColor='transparent'">Home</a>
+  <a href="#" style="display: block; padding: 8px; text-decoration: none; color: black; border-bottom: 1px solid #ddd;" onmouseover="this.style.backgroundColor='lightblue'" onmouseout="this.style.backgroundColor='transparent'">About</a>
+  <a href="#" style="display: block; padding: 8px; text-decoration: none; color: black; border-bottom: 1px solid #ddd;" onmouseover="this.style.backgroundColor='lightblue'" onmouseout="this.style.backgroundColor='transparent'">Services</a>
+  <a href="#" style="display: block; padding: 8px; text-decoration: none; color: black;" onmouseover="this.style.backgroundColor='lightblue'" onmouseout="this.style.backgroundColor='transparent'">Contact</a>
+</div>`,
+  'footer': `<footer style="background:#f1f1f1; text-align:center; padding:10px; border-top:1px solid #ccc;">© 2025 YourSite</footer>`,
+  'section': `<div style="padding:20px; background:#f9f9f9; border:1px solid #ccc;"><h2>Section Title</h2><p>This is a section with content.</p></div>`,
+  'card': `<div style="border:1px solid #ccc; border-radius:8px; padding:16px; width:250px;"><img src="https://via.placeholder.com/250x150" style="width:100%; border-radius:6px;"><h3 style="margin:10px 0 5px;">Card Title</h3><p>This is a description inside the card.</p></div>`,
+  'input': `<input type="text" placeholder="Enter your name" style="padding:8px; width:100%; border:1px solid #ccc; border-radius:4px;">`,
+  'textarea': `<textarea rows="4" placeholder="Your message" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></textarea>`,
+  'select': `<select style="padding:8px; border:1px solid #ccc; border-radius:4px;"><option>Select an option</option><option>Option 1</option><option>Option 2</option></select>`,
+  'checkbox': `<label><input type="checkbox"> I agree to the terms</label>`,
+  'radio': `<label><input type="radio" name="choice"> Option 1</label><br><label><input type="radio" name="choice"> Option 2</label>`,
+  'accordion': `<div style="border:1px solid #ccc;"><button onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none';" style="width:100%; padding:10px; background:#eee; border:none; text-align:left;">Toggle FAQ</button><div style="padding:10px; display:none;">This is the hidden content inside the accordion.</div></div>`,
+  'tabs': `<div><button onclick="document.getElementById('tab1').style.display='block'; document.getElementById('tab2').style.display='none';" style="padding:8px; border:1px solid #ccc;">Tab 1</button><button onclick="document.getElementById('tab2').style.display='block'; document.getElementById('tab1').style.display='none';" style="padding:8px; border:1px solid #ccc;">Tab 2</button><div id="tab1" style="padding:10px; border:1px solid #ccc; margin-top:5px;">This is Tab 1 content.</div><div id="tab2" style="display:none; padding:10px; border:1px solid #ccc; margin-top:5px;">This is Tab 2 content.</div></div>`,
+  'progress': `<div style="background:#eee; width:100%; height:20px; border-radius:10px;"><div style="width:60%; background:#07c; height:100%; border-radius:10px;"></div></div>`
+};
+
+
+    components.forEach(el => {
+      el.addEventListener('dragstart', e => {
+        const type = el.getAttribute('data-type');
+        e.dataTransfer.setData('component-type', type);
+      });
+    });
+
+    dropZone.addEventListener('dragover', e => e.preventDefault());
+
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      const type = e.dataTransfer.getData('component-type');
+      const html = componentTemplates[type];
+      if (html) {
+        dropZone.insertAdjacentHTML('beforeend', html);
+        updateOutput();
+      }
+    });
+
+
+    const copyBtn = document.getElementById('copyBtn');
+    const generatedCode = document.getElementById('generatedCode');
+
+    copyBtn.addEventListener('click', () => {
+    const codeText = output.textContent; // get text from <pre>
+      navigator.clipboard.writeText(codeText).then(() => {
+      alert('Code copied to clipboard!');
+      }).catch(() => {
+      alert('Failed to copy code.');
+  });
+});
+
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+    dropZone.innerHTML = '<p class="text-muted">Drop components here...</p>';
+    output.textContent = '';
+    });
+
+    function updateOutput() {
+      const defaultText = dropZone.querySelector('p');
+      if (defaultText && defaultText.textContent.includes('Drop components')) {
+        defaultText.remove();
+      }
+
+      const elements = Array.from(dropZone.children);
+      let formattedHTML = '';
+      elements.forEach(el => {
+        formattedHTML += el.outerHTML + '\n';
+      });
+
+      output.textContent = formattedHTML.trim();
+    };
+  </script>
+</body>
+</html>
